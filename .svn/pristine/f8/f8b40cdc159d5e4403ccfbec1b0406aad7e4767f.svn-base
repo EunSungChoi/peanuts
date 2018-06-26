@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.hta.peanuts.dao.TogetherDao">
+
+	<select id="getTopBoards" resultType="Board">
+		select
+			B.board_no			as "no"
+		,	B.user_id			as userId
+		,	B.board_category	as category
+		,	B.board_title		as title
+		,	B.board_contents	as "contents"
+		,	B.board_view		as "view"
+		,	B.create_date		as createDate
+		,	B.board_status		as status
+		,	nvl(L.cnt, 0)		as likes
+		from
+			board B, (select no, count(*) as cnt
+					  from likes
+					  where likes_category = 'TOGETHER'
+					  group by no) L
+		where B.board_no in (select board_no
+							from (select board_no, board_view, row_number() over (order by board_view desc) as rn
+					              from board
+								  where board_category = 'TOGETHER'
+								  and create_date >= sysdate - 7
+								  and create_date &lt;= sysdate
+								  and board_status = 'E')
+								where rn &lt;= 3)
+		and B.board_no = L.no(+)		
+	</select>
+
+	<select id="getTogetherBoards" resultType="Board">
+		select
+			B.board_no			as "no"
+		,	B.user_id			as userId
+		,	B.board_category	as category
+		,	B.board_title		as title
+		,	B.board_contents	as "contents"
+		,	B.board_view		as "view"
+		,	B.create_date		as createDate
+		,	B.board_status		as status
+		,	nvl(L.cnt, 0)		as likes
+		from
+			board B, (select no, count(*) as cnt
+			     	  from likes 
+					  where likes_category = 'TOGETHER'
+					  group by no) L
+		where
+			B.board_category = 'TOGETHER'
+		and
+			B.board_status = 'E'
+		and
+			B.board_no = L.no(+)
+		order by
+			B.create_date desc
+	</select>
+
+</mapper>

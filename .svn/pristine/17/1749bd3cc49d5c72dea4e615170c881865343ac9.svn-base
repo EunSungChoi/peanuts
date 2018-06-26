@@ -1,0 +1,40 @@
+package kr.co.hta.peanuts.service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.co.hta.peanuts.dao.TogetherDao;
+import kr.co.hta.peanuts.vo.Board;
+
+@Service
+public class TogetherServiceImpl implements TogetherService {
+
+	@Autowired
+	TogetherDao togetherDao;
+	
+	@Override
+	public List<Board> getTopBoards() {
+		return togetherDao.getTopBoards();
+	}
+	@Override
+	public List<Board> getTogetherBoards(String keyword) {
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		if(keyword.equals("all")) {
+			map.put("all", keyword);
+		} else if(keyword.equals("writer")) {
+			map.put("writer", keyword);
+		} else if(keyword.equals("title")) {
+			map.put("title", keyword);
+		} else if(keyword.equals("contents")) {
+			map.put("contents", keyword);
+		} else if(keyword.equals("board")) {
+			map.put("board", keyword);
+		}
+		return togetherDao.getTogetherBoards(map);
+	}
+}

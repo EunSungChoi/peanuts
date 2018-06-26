@@ -1,0 +1,230 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>  
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<title>schedule list</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<style type="text/css">
+	p.pageTitle {font-size: 3em; color: #c68c53; font-weight: bolder; margin-top: -20px; margin-bottom: -5px;}
+	.noticeBox p {font-size: 13px; color: #737373; font-weight: bolder; margin: 10px;}
+	
+	select[name=searchBy] {font-size: 12px;}
+	
+	table th, table td {padding: 3px;}
+	.listHead th {text-align: center; font-size: 12px; color: #737373;}
+	.listTop a:link {color: #737373; text-decoration: none;}
+	.listTop a:visited {color: #737373; text-decoration: none;}
+	.listTop a:hover {color: #ac7339; text-decoration: none;}
+	
+	.pagination a {
+	    color: black;
+	    float: left;
+	    padding: 8px 16px;
+	    text-decoration: none;
+	    transition: background-color .3s;
+	}
+	.pagination a.active {
+	    background-color: #a0522d;
+	    color: white;
+	    border-radius: 10px;
+	}
+	.pagination a:hover:not(.active) {
+		background-color: #ddd;
+	    border-radius: 10px;
+	}
+</style>
+<body>
+<jsp:include page="../include/header.jsp">
+	<jsp:param name="header" value="together"/>
+</jsp:include>
+<br/>
+<div class="container" style="width: 60%; min-height: 740px;">
+	<div class="row">
+		<div class="col-sm-8" id="leftSection">
+			<p class="pageTitle">동행게시판</p>
+			<div class="row noticeBox" style="border: 2px solid #c68c53; border-radius: 7px;">
+				<p><img src="/resources/images/logo/peanutbw.png" width="20px;" /> 땅콩플래너 동행게시판을 통해서 즐거운 여행의 파트너를 만나보세요!</p>
+				<p><img src="/resources/images/logo/peanutbw.png" width="20px;" /> 함께하고 싶은 회원의 게시글에 <span style="color: #c68c53;">참여버튼</span>을 눌러보세요!</p>
+				<p><img src="/resources/images/logo/peanutbw.png" width="20px;" /> 게시글 작성은 로그인한 회원만 가능합니다.</p>
+			</div>
+			<div class="row searchBox pull-right" style="margin-top: 10px;">
+				<div class="form-inline">
+					<select class="form-control" name="searchBy">
+						<option value="all">::검색기준::</option>
+						<option value="writer">작성자</option>
+						<option value="title">제목</option>
+						<option value="contents">내용</option>
+						<option value="board">제목+내용</option>
+					</select>
+					<input class="form-control" type="text" width="200px;" name="keyword" />
+					<button class="btn btn-sm btn-default">검색</button>
+				</div>
+			</div>
+			<div class="row listBox">
+				<table class="table" width="100%;">
+					<colgroup>
+						<col width="7%">
+						<col width="*">
+						<col width="15%">
+						<col width="15%">
+						<col width="7%">
+						<col width="7%">
+					</colgroup>
+					<thead>
+						<tr class="listHead">
+							<th>번호</th>
+							<th style="text-align: left;">최근 일주일 인기글 ⓘ</th>
+							<th>닉네임</th>
+							<th>날짜</th>
+							<th>조회</th>
+							<th><span class="glyphicon glyphicon-thumbs-up"></span></th>
+						</tr>
+					</thead>
+					<tbody class="listTop">
+						<c:choose>
+							<c:when test="${not empty topTogethers }">
+								<c:forEach var="together" items="${topTogethers }">
+									<tr>
+										<td style="text-align: center;"><img src="/resources/images/logo/peanutgr.png" width="15px;" style="opacity: 0.5;"/></td>
+										<td style="text-align: left; font-size: 13px; color: #c68c53; font-weight: bolder;">${together.title }</td>
+										<td style="text-align: center; font-size: 12px; color: #000000;"><a href="/user/mypage.do?ui=${together.userId }">${together.userId }</a> </td>
+										<td style="text-align: center; font-size: 12px; color: #737373;"><a href="#"><fmt:formatDate value="${together.createDate }" pattern="MM.dd hh:mm"/></a></td>
+										<td style="text-align: center; font-size: 12px; color: #737373;">${together.view }</td>
+										<td style="text-align: center; font-size: 12px; color: #737373;">${together.likes }</td>
+									</tr>
+								</c:forEach>
+							</c:when>
+							<c:otherwise>
+								<tr>
+									<td colspan="6">게시글이 존재하지않습니다.</td>
+								</tr>
+							</c:otherwise>
+						</c:choose>
+					</tbody>
+					<tbody class="listMiddle"></tbody>
+					<tfoot class="listBottom"></tfoot>
+				</table>			
+			</div>
+			
+		</div>
+		<div class="col-sm-4" id="rightSection">
+		
+		</div>	
+	</div>
+</div>
+<jsp:include page="../include/footer.jsp" />	
+</body>
+<script>
+$(function() {	
+	
+	//공용변수
+	var searchBy = $('select[name=searchBy]').val();
+	var totalCnt;			//전체 게시글 수
+	var totalPageNo;		//전체 페이지수 (컨텐츠수 / 20)
+	var totalBlocks;		//전체 블록수 (페이지수/nav 반올림)
+	var currentBlock = 1;	//현재 블록
+	var start = 0;
+	var end = 20;
+	var beginPage;			//시작 페이지
+	var endPage;			//끝 페이지
+	var currentPageNo = 1;
+	var nav = 5;		
+
+	var $list = $('.listMiddle');
+	var $paging = $('.listBottom');
+	
+	//게시글 목록 표시
+	function getAllTogethers() {
+		searchBy = $('select[name=searchBy]').val();
+		$.ajax({
+			type: 'GET',
+			url: '/board/getAllTogethers.do',
+			data: {keyword: searchBy},
+			dataType: 'json',
+			success: function(result) {
+				$list.empty();
+/* 				start = (currentPageNo-1)*20;
+				end = (currentPageNo*20); */
+
+				console.log(result);
+				
+				var rows;
+				if(result.length != 0) {
+					totalCnt = result.length;
+					totalPageNo = Math.ceil(totalCnt/20);
+					if(currentPageNo == totalPageNo){
+						end = result.length
+					}
+					
+					for(var i=start; i<end; i++){
+					}
+				} else {
+					totalCnt = 1;
+					totalPageNo = Math.ceil(totalCnt/20);					
+					rows += '<tr><td colspan="6" class="text-center">게시글이 존재하지 않습니다.</td></tr>';
+				}
+				$list.append(rows);				
+				
+				//pagination
+				totalBlocks = Math.ceil(totalPageNo/nav);
+				currentBlock = Math.ceil(currentPageNo/nav);
+				beginPage = ((currentBlock-1)*nav)+1;
+				endPage = currentBlock*nav;		
+				 
+				pagination = "<tr><td colspan='6' style='text-align: center;'><nav>";
+			    pagination += "<ul class='pagination'>";
+				if(currentBlock != 1){
+				    pagination += "<li><a href='#' aria-label='Previous'>";
+				    pagination += "<span aria-hidden='true'>&laquo;</span></a></li>";
+				}
+				if(currentBlock == totalBlocks) {
+					beginPage = ((totalBlocks-1)*nav)+1;
+					endPage = totalPageNo;
+				}
+				for (var i=beginPage; i<=endPage; i++) {
+					if (currentPageNo == i){
+						pagination += "<li><a href='#' class='active'>"+i+"</a></li>";
+					} else {
+						pagination += "<li><a href='#'>"+i+"</a></li>";
+					}
+				}
+				if(currentBlock != totalBlocks){
+				    pagination += "<li><a href='#' aria-label='Next'>";
+				    pagination += "<span aria-hidden='true'>&raquo;</span></a></li>";
+				}
+			    pagination += "</ul></nav></td></tr>";
+			    $paging.append(pagination);	
+			}
+		});
+	}
+	getAllTogethers();
+	
+	//$paging pagination 클릭한경우
+	$list.on('click', 'a', function(){
+		currentPageNo = $(this).text();
+		getAllTogethers();
+		return false;
+	});		
+	$list.on('click', 'a[aria-label="Previous"]', function(){
+		currentBlock = currentBlock == 1 ? currentBlock : currentBlock-1;
+		currentPageNo = ((currentBlock-1)*nav)+1;	
+		getAllTogethers();
+		return false;
+	});		
+	$list.on('click', 'a[aria-label="Next"]', function(){
+		currentBlock = currentBlock+1;
+		currentPageNo = ((currentBlock-1)*nav)+1;		
+		getAllTogethers();
+		return false;
+	});		
+	
+	
+})
+</script>
+</html>

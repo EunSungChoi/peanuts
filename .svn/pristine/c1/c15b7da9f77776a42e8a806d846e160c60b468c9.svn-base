@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.hta.peanuts.dao.TogetherDao">
+
+	<select id="getTogetherBoards" resultType="Board">
+		select
+			board_no		as no
+		,	user_id			as userId
+		,	board_title		as title
+		,	board_contents	as contents
+		,	board_view		as view
+		,	create_date		as createDate
+		from
+			board
+		where
+			board_category = 'TOGETHER'
+		and
+			board_status = 'E'
+		order by
+			create_date desc
+	</select>
+
+</mapper>

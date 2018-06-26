@@ -1,0 +1,19 @@
+package kr.co.hta.peanuts.dao;
+
+import java.util.HashMap;
+import java.util.List;
+
+import kr.co.hta.peanuts.vo.Images;
+import kr.co.hta.peanuts.vo.Ticket;
+
+
+public interface TicketDao {
+
+	List<Ticket> getAllTicket();
+	Ticket getTicketByNo(int no);
+	List<Images> getTicketImageByNo(int no);
+	Integer getTicketReviewAmount(int no);
+	HashMap<String,Object> getTicketReviewAmountGroupByGrade(int no);
+	Double getTicketGradeAverage(int no);
+	List<HashMap<String,Object>> getReviewImagesByTicketNo(int no);
+}
